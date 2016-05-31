@@ -1,0 +1,24 @@
+{
+  "name": "interview",
+  "description": "Beta 0.1",
+  "main": "index.html",
+  "authors": [
+    "Derek Qiao"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "init"
+  ],
+  "homepage": "https://github.com/qdl159/video",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "^1.5.6",
+    "bootstrap": "^3.3.6"
+  }
+}
