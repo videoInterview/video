@@ -9,7 +9,7 @@ var path = require('path');
 // require GridFS
 var Grid = require('gridfs-stream');
 // require filesystem module
-var fs = require('fs');
+var ds = require('fs');
 
 // where to find the video in the filesystem that we will store in the DB
 var videoPath = path.join(__dirname, '../public/demo.m4v');
@@ -25,11 +25,12 @@ conn.once('open', function () {
 	// the name to store file as in the DB
 	var writestream = gfs.createWriteStream({
 		// will be stored in Mongo as 'swimVid.mp4'
-		filename: '_demo.m4v'
+		filename: '_demo.m4v',
+		root: 'video'
 	});
 	// create a read-stream from where the video currently is (videoPath)
 	// and pipe it into the database (through write-stream)
-	fs.createReadStream(videoPath).pipe(writestream);
+	ds.createReadStream(videoPath).pipe(writestream);
 
 	writestream.on('close', function (file) {
 		// do something with 'file'
