@@ -20,7 +20,7 @@ router.get('/create_room', function (req, res, next) {
 });
 
 /* GET room page. */
-router.get('/:room_id', function (req, res, next) {
+router.get('/:room_id([0-9a-z]{24})', function (req, res, next) {
 	console.log("123");
 	http.get("http://localhost:3000/api/rooms/"+req.params.room_id, function(resp) {
 		console.log("Got response1: " + resp.statusCode);
