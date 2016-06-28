@@ -1,36 +1,24 @@
-var express = require('express');
-var router = express.Router();
-var http = require('http');
+module.exports = function(io) {
+	var express = require('express');
+	var dataSchema = require('./dataSchema');
+	var router = express.Router();
+	var http = require('http');
+	var mongoose = require('mongoose');
+	var path = require('path');
 
-/* GET home page. */
-router.get('/', function (req, res, next) {
-  res.render('index', { title: 'Express' });
-});
+	mongoose.connect("localhost:27017/test");
+	var db = mongoose.connection;
+	db.on('error', console.error.bind(console, 'connection error:'));
 
-/* Create a room. */
-router.get('/create_room', function (req, res, next) {
-	http.get("http://localhost:3000/api/create_room", function(resp) {
-		console.log("Got response: " + resp.statusCode);
-		resp.on('data', function (data) {
-			res.redirect(JSON.parse(data.toString())._id);
-		});
-	}).on('error', function (e) {
-		console.log("Got error: " + e.message);
-	});
-});
-
-/* GET room page. */
-router.get('/:room_id([0-9a-z]{24})', function (req, res, next) {
-	console.log("123");
-	http.get("http://localhost:3000/api/rooms/"+req.params.room_id, function(resp) {
-		console.log("Got response1: " + resp.statusCode);
-		resp.on('data', function (data) {
-			res.json(JSON.parse(data.toString()));
-		});
-	}).on('error', function (e) {
-		console.log("Got error: " + e.message);
+	/* GET home page. */
+	router.get('/www', function (req, res, next) {
+	  res.render('index', { title: 'Express' });
 	});
 
-});
+	/* GET room page. */
+	router.get('/:room_id([0-9a-z]{24})', function (req, res, next) {
+		res.sendFile(path.join(__dirname, '../public', 'socket.html'));
+	});
 
-module.exports = router;
+	return router;
+};

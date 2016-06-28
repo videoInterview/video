@@ -8,11 +8,16 @@ var mongoose = require('mongoose'),
 	Schema = mongoose.Schema;
 	
 var roomSchema = Schema({
-	code: String,
+	room: String,
 	type: { type: String, enum: [ 'FREE', 'INDIVIDUAL', 'BUSINESS' ]},
-	owner: { type: Schema.Types.ObjectId, ref: 'User' },
+	owner: { type: String/*,type: Schema.Types.ObjectId, ref: 'User'*/ },
+	status: String,
 	interviewee: String,
-	interviewers: [{ name: String }],
+	interviewers: [mongoose.Schema({
+      id: String,
+      name: String,
+      status: String
+   	}, { _id: false })],
 	date_created: { type: Date, default: Date.now },
 	editor_file: { type: Schema.Types.ObjectId, ref: 'Editor_file' },
 	video_file: { type: Schema.Types.ObjectId, ref: 'Video_file' },
@@ -22,7 +27,7 @@ var roomSchema = Schema({
 // not add Billing info yet..
 var userSchema = Schema({
 	name: { type: String, require: true },
-	password: {type: String, require: true },
+	password: {type: String/*, require: true */},
 	email: String,
 	active: { type: Number, default: '0' },
 	user_type: { type: String, 
@@ -32,6 +37,9 @@ var userSchema = Schema({
 });
 
 var User = mongoose.model('User', userSchema);
+// roomSchema.statics.findInterviewers = function findInterviewers (RoomId, cb) {
+// 	return this.model('Room').findById(RoomId, cb).interviewers;
+// };
 var Room = mongoose.model('Room', roomSchema);
 
 module.exports = {
