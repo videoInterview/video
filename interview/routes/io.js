@@ -26,6 +26,7 @@ module.exports = function() {
 		            			if(room.interviewers[i].status=='online')
 		    						_users.push(room.interviewers[i].name);
 		    				}
+		    					socket.broadcast.to( _room ).emit('leave', _userId);
 		    					io.sockets.in(_room).emit('get users', _users);
 		    				// io.sockets.in(_room).emit('left', {user: _username, userId: _userId});
 		            	}
@@ -86,6 +87,10 @@ module.exports = function() {
 	  	// Send Message
 	  	socket.on('send message', function (data) {
 	  		io.sockets.in( _room ).emit('new message', {msg: data, user: socket.username});
+	  	});
+
+	  	socket.on('streamOn', function (image){
+	  		socket.broadcast.to( _room ).emit('stream', {URL: image.URL, user: image.user, userId: _userId });
 	  	});
 
 	});
