@@ -1,0 +1,153 @@
+<html>
+<head>
+	<title>Test Page</title>
+	<link rel="stylesheet" type="text/css" href="libs/bootstrap/dist/css/bootstrap.css">
+	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+	<script type="text/javascript" src = "/socket.io/socket.io.js"></script>
+	<script>
+	$(function(){
+		console.log($(location).attr('pathname').split("/")[1]);
+		var socket = io();
+		var $messageForm = $('#messageForm');
+		var $message = $('#message');
+		var $chat = $('#chat');
+		var $messageArea = $('#messageArea');
+		var $userFormArea = $('#userFormArea');
+		var $userForm = $('#userForm');
+		var $users = $('#users');
+		var $username = $('#username');
+
+		var $userVideo = $("#userVideo");
+		var canvas = document.getElementById("preview");
+		var video = document.getElementById("video");
+		var context = canvas.getContext("2d");
+		var username;
+		canvas.height = 240;
+		canvas.width = 320;
+		context.height = canvas.height;
+		context.width = canvas.width;
+
+
+
+	  	$messageForm.submit(function(e) {
+		  	e.preventDefault();
+		  	socket.emit('send message', $message.val());
+		  	$message.val('');
+		});
+
+	  	$userForm.submit(function(e) {
+		  	e.preventDefault();
+		  	username = $username.val();
+		  	socket.emit('join', {room: $(location).attr('pathname').split("/")[1],
+		  		name: $username.val()}, function(data){
+		  		if(data) {
+		  			$userFormArea.hide();
+		  			$messageArea.show();
+		  		}
+		  	});
+		  	$username.val('');
+		  	setInterval(function(){
+		  		viewVideo(video, context);
+		  	},70);
+		  	
+		});
+
+		socket.on('new message', function (data) {
+	    	$chat.append('<div class="well"><strong>'+ data.user+':</strong> '+data.msg+'</div>');
+	    });
+
+		socket.on('get users', function (data) {
+		  	var html = '';
+		  	for(i = 0; i<data.length; i++){
+		  		html += '<li class="list-group-item">' + data[i] + '</li>';
+		  	}
+		  	$users.html(html);
+		});
+
+		socket.on('stream', function (image){
+			var img;
+			if(!document.getElementById(image.userId+'block')){
+				var ele = '<div id="'+image.userId+'block"><image class="play"><div class="who well"><strong>'+ image.user+'</strong></div></div>';
+				$userVideo.append(ele);	
+			} else {
+				img = document.getElementById(image.userId+"block").getElementsByClassName("play")[0];
+				img.src = image.URL;
+			}
+		});
+
+		socket.on('leave', function (userId){
+			var ele = document.getElementById(userId+'block');
+			document.getElementById('userVideo').removeChild(ele);
+		})
+
+		function loadCam (stream){
+			video.src = window.URL.createObjectURL(stream);
+		}
+		function loadFail (stream){}
+		function viewVideo (video, context) {
+
+			context.drawImage(video,0,0, context.width, context.height);
+			socket.emit('streamOn', {URL: canvas.toDataURL('image/webp'), user: username });
+		}
+		navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msgGetUserMedia);
+		if(navigator.getUserMedia) {
+			navigator.getUserMedia({video: true}, loadCam, loadFail);
+		}
+	});
+	</script>
+	<style>
+		body{
+			margin: 30px;
+		}
+		#messageArea{
+			display: none;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div id="userFormArea" class="row">
+			<div class="col-md-12">
+				<form id="userForm">
+					<div class="form-group">
+						<label>Enter Username</label>
+						<input class="form-control" id="username"/>
+						<br />
+						<input type="submit" class="btn btn-primary" value="Login"/>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<div id="videoArea" class="row">
+			<div class="col-md-8">
+				<video id="video" style="width:680px;height:320px;" autoplay="true"></video>
+				<canvas id="preview" style="display:none"></canvas>
+			</div>	
+			<div class="col-md-4">
+				<div id="userVideo"></div>
+			</div>
+		</div>
+		<div id="messageArea" class="row">
+			<div class="col-md-4">
+				<div class="well">
+					<h3>Online Users</h3>
+					<ul class="list-group" id="users"></ul>
+				</div>
+			</div>
+			<div class="col-md-8">
+				<div class="chat" id="chat"></div>
+				<form id="messageForm">
+					<div class="form-group">
+						<label>Enter Message</label>
+						<textarea class="form-control" id="message"></textarea>
+						<br />
+						<input type="submit" class="btn btn-primary" value="Send Message"/>
+					</div>
+				</form>
+				
+			</div>
+		</div>
+	</div>
+</body>
+</html>

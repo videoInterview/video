@@ -2,6 +2,8 @@
 <html>
 <head>
 	<link rel="stylesheet" type="text/css" href="libs/bootstrap/dist/css/bootstrap.css">
+	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+	<script type="text/javascript"	src="libs/angular/angular.min.js"></script>
 </head>
 <body>
 	<h1>Welcome Page</h1>	
@@ -30,11 +32,42 @@
 				<a href="reset1.html">
 					<button class="btn btn-primary pull-left">Reset</button>
 				</a>
+	</form>
+	</div>
+		<div class="modal-footer">
+			<div>
 				<button class="btn btn-primary">Sign Up</button>
 				<button class="btn btn-primary">Login</button>
 			</div>
 		</div>
-	</div>	
+	</div>
+	</div>
+	<a href = "/create_room"> Create a Interview room </a>
+	<div id="createRoom">
+		<form id="roomForm">
+			<label>Enter Your Name:</label>
+			<input type = "text" id="ownerName" placeholder="your name"/>
+			<input type = "submit" value="create a room"/>
+		</form>
+	</div>
+	<script>
+	$(function(){
+		$("#roomForm").submit(function (e) {
+	  	e.preventDefault();
+	  	$.ajax({
+	  		type: 'POST',
+	  		url: "api/create_room",
+	  		data: {
+	  			ownerName: $("#ownerName").val()
+	  		},
+	  		success: function(room){
+	  			console.log(room._id);
+	  			//window.location.replace(room._id);
+	  		}
+	  	});
+	  });
+	});
+	</script>
 
 </div>
 </body>

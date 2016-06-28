@@ -1,9 +1,24 @@
-var express = require('express');
-var router = express.Router();
+module.exports = function(io) {
+	var express = require('express');
+	var dataSchema = require('./dataSchema');
+	var router = express.Router();
+	var http = require('http');
+	var mongoose = require('mongoose');
+	var path = require('path');
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
+	mongoose.connect("localhost:27017/test");
+	var db = mongoose.connection;
+	db.on('error', console.error.bind(console, 'connection error:'));
 
-module.exports = router;
+	/* GET home page. */
+	router.get('/www', function (req, res, next) {
+	  res.render('index', { title: 'Express' });
+	});
+
+	/* GET room page. */
+	router.get('/:room_id([0-9a-z]{24})', function (req, res, next) {
+		res.sendFile(path.join(__dirname, '../public', 'socket.html'));
+	});
+
+	return router;
+};
